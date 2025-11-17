@@ -74,6 +74,8 @@ resource "aws_subnet" "database" {  # First name is public[0], second name is pu
   )
 }
 
+
+# Creation of DB subnet group
 resource "aws_db_subnet_group" "default" {
   name       = "${local.resource_name}"
   subnet_ids = aws_subnet.database[*].id
@@ -92,7 +94,7 @@ resource "aws_eip" "nat" {
   domain   = "vpc"
 }
 
-# Creation of NAT Gateway
+# Creation of NAT Gateway.
 resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.nat.id
   subnet_id     = aws_subnet.public[0].id
@@ -171,7 +173,7 @@ resource "aws_route" "database_route" {
 # Route table and subnet associations ###
 resource "aws_route_table_association" "public" {
   count = length(var.public_subnet_cidrs)
-  subnet_id      = element(aws_subnet.public[*].id, count.index)
+  subnet_id      = element(aws_subnet.public[*].id, count.index) # Here I have 2 public subnets and I have to associate public route table to 2 public subnets. Thats why I used * here. Element function is used for first iteration I will get the first subnet ID and second iteration I will get the second subnet ID. 
   route_table_id = aws_route_table.public.id
 }
 
@@ -185,4 +187,4 @@ resource "aws_route_table_association" "database" {
   count = length(var.database_subnet_cidrs)
   subnet_id      = element(aws_subnet.database[*].id, count.index)
   route_table_id = aws_route_table.database.id
-}
+} 
